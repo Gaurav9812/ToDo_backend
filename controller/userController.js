@@ -11,13 +11,11 @@ module.exports.register = async function (req, res) {
       securityQuestion: req.body.sQuestion,
       securityAnswer: req.body.sAnswer,
     });
-    console.log(user);
     res.status(200).json({
       success: true,
       message: "successfully registered",
     });
   } catch (err) {
-    console.log(err);
     res.status(404).json({
       success: false,
       message: "error field already taken",
@@ -26,7 +24,6 @@ module.exports.register = async function (req, res) {
 };
 module.exports.login = async function (req, res) {
   try {
-    console.log(req.body);
     let user = await User.findOne({ username: req.body.username }).populate(
       "tasks"
     );
@@ -43,7 +40,6 @@ module.exports.login = async function (req, res) {
       });
     }
   } catch (err) {
-    console.log(err);
     return res.json(500, {
       message: "INTERNAL SERVER ERROR",
     });

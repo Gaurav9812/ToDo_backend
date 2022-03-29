@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 
 mongoose.connect("mongodb://localhost/toDo");
-// mongoose.connect('mongodb+srv://mehra213:Zd6UGyhgNDvopnHl@cluster0.pooba.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
-
 const db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "Error connecting to Mongo db"));

@@ -5,7 +5,20 @@ const mongoose = require("mongoose");
 const userController = require("./userController");
 module.exports.createTask = async function (req, res) {
   try {
-    console.log(req.body);
+    let user = await User.findById(req.user.id).populate("tasks");
+    let bool = false;
+    await user.tasks.forEach((task) => {
+      if (task.title == req.body.title) {
+        bool = true;
+        return;
+      }
+    });
+    if (bool) {
+      return res.json(500, {
+        success: false,
+        message: "title cannot be same",
+      });
+    }
     let task = await Task.create({
       title: req.body.title,
       description: req.body.description,
@@ -13,7 +26,6 @@ module.exports.createTask = async function (req, res) {
       startedAt: req.body.startDate,
       finishedAt: req.body.endDate,
     });
-    console.log(req.user);
     await req.user.tasks.push(task);
     req.user.save();
 
@@ -24,7 +36,6 @@ module.exports.createTask = async function (req, res) {
       token: token,
     });
   } catch (err) {
-    console.log("error", err);
     return res.json(500, {
       success: false,
       message: "title cannot be same",
@@ -34,12 +45,11 @@ module.exports.createTask = async function (req, res) {
 
 module.exports.update = async function (req, res) {
   try {
-    console.log(req.params, req.query);
     let id = mongoose.mongo.ObjectId(req.params.id);
-
     // let task = await Task.findById(req.params.id);
+
     let task = await Task.updateOne(
-      { _id: id },
+      { _id: req.params.id },
       {
         $set: {
           title: req.body.title,
@@ -50,7 +60,7 @@ module.exports.update = async function (req, res) {
         },
       }
     );
-    let token = await userController.getToken();
+    let token = await userController.getToken(req.user);
     if (task) {
       return res.json(200, {
         success: true,
@@ -58,7 +68,6 @@ module.exports.update = async function (req, res) {
       });
     }
   } catch (err) {
-    console.log(err);
     return res.json(500, {
       success: false,
       message: "Unexpected error occur",
@@ -73,6 +82,7 @@ module.exports.deleteTask = async function (req, res) {
     let user = await User.findByIdAndUpdate(req.user._id, {
       $pull: { tasks: req.params.id },
     }).populate("tasks");
+
     if (user) {
       return res.json(200, {
         success: true,

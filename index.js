@@ -17,6 +17,7 @@ app.use((req, res, next) => {
 
   next();
 });
+
 app.use(express.urlencoded());
 app.use(passport.initialize());
 
